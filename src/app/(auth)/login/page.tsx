@@ -3,12 +3,13 @@ import { requireUnauth } from "@/lib/auth-utils";
 
 
 
-const Page = async() => {
-  await requireUnauth()
+
+const Page = async () => {
+  // await requireUnauth()
   return (
-    <div>
-      <LoginForm />
-    </div>
+    
+        <LoginForm />
+      
   )
 }
 
