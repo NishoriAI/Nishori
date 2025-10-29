@@ -6,11 +6,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { authClient } from '@/lib/auth-client';
 import { zodResolver } from '@hookform/resolvers/zod'
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from "react-hook-form";
 import { toast } from 'sonner';
-import {z} from "zod";
+import { z } from "zod";
 
 
 
@@ -21,10 +22,10 @@ const registerSchema = z.object({
   password: z.string().min(1, 'Password is required'),
   confirmPassword: z.string()
 })
-.refine( (data) => data.password === data.confirmPassword, {
-  message: "Password don't match",
-  path: ["confirmPassword"]
-})
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Password don't match",
+    path: ["confirmPassword"]
+  })
 
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
@@ -50,15 +51,15 @@ export function RegisterForm() {
       password: values.password,
       callbackURL: "/",
     },
-    {
-      onSuccess: () => {
-        router.push('/')
-      },
-      onError: (ctx) => {
-        toast.error(ctx.error.message)
+      {
+        onSuccess: () => {
+          router.push('/')
+        },
+        onError: (ctx) => {
+          toast.error(ctx.error.message)
+        }
       }
-    }
-  )
+    )
   };
 
 
@@ -85,6 +86,13 @@ export function RegisterForm() {
                     type='button'
                     disabled={isPending}
                   >
+
+                    <Image
+                      src={'/logos/github.svg'}
+                      alt='GitHub'
+                      width={20}
+                      height={20}
+                    />
                     Continue with Github
                   </Button>
 
@@ -93,6 +101,13 @@ export function RegisterForm() {
                     type='button'
                     disabled={isPending}
                   >
+
+                    <Image
+                      src={'/logos/google.svg'}
+                      alt='Google'
+                      width={20}
+                      height={20}
+                    />
                     Continue with Google
                   </Button>
                 </div>
@@ -159,7 +174,7 @@ export function RegisterForm() {
                     type='submit'
                     className='w-full'
                     disabled={isPending}
-                    
+
                   >
                     Sign up
                   </Button>
