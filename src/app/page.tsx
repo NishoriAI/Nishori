@@ -12,6 +12,12 @@ const Page = () => {
   const queryClient = useQueryClient()
 
 
+  const testAi = useMutation(trpc.testAi.mutationOptions({
+    onSuccess: () => {
+      toast.success('AI Job queued')
+    }
+  }))
+
   const create = useMutation(trpc.createWorkflow.mutationOptions({
     onSuccess: () => {
       // queryClient.invalidateQueries(trpc.getWorkflows.queryOptions())
@@ -20,11 +26,14 @@ const Page = () => {
   }))
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center">
+    <div className="h-screen flex flex-col items-center justify-center gap-y-4">
      Protected Server Component
-     <div>
-     {JSON.stringify(data, null, 2)}
+     <div className="flex flex-col">
+     {JSON.stringify(data, null, 4)}
      </div>
+     <Button disabled={testAi.isPending} onClick={() => testAi.mutate()}>
+      Test Gemini
+     </Button>
      <Button
      onClick={() => create.mutate()}
      disabled={create.isPending}
