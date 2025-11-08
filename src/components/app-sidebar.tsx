@@ -6,6 +6,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { authClient } from "@/lib/auth-client"
+import { useHasActiveSubscription } from "@/features/subscriptions/hooks/use-subscription"
 
 
 
@@ -42,6 +43,9 @@ export const AppSidebar = () => {
   const pathname = usePathname();
   const router = useRouter()
 
+
+  const { hasActiveSubscription, isLoading } = useHasActiveSubscription()
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -62,47 +66,54 @@ export const AppSidebar = () => {
           <SidebarGroup key={group.title}>
             <SidebarGroupContent>
               <SidebarMenu>
-              {group.items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    tooltip={item.title}
-                    isActive={
-                      item.url === '/' ?
-                        pathname === '/' : pathname.startsWith(item.url)
-                    }
-                    asChild
-                    className="gap-x-4 h-10 px-4"
-                  >
-                    <Link href={item.url} prefetch>
-                      <item.icon className="size-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+                {group.items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      tooltip={item.title}
+                      isActive={
+                        item.url === '/' ?
+                          pathname === '/' : pathname.startsWith(item.url)
+                      }
+                      asChild
+                      className="gap-x-4 h-10 px-4"
+                    >
+                      <Link href={item.url} prefetch>
+                        <item.icon className="size-4" />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
         ))}
       </SidebarContent>
       <SidebarFooter>
+
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              tooltip="Upgrade to Pro"
-              className="gap-x-4 h-10 px-4"
-              onClick={() => { }}
-            >
-              <CrownIcon className="h-4 w-4" />
-              <span>Upgrade to Pro</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+
+          {!hasActiveSubscription && !isLoading && (
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                tooltip="Upgrade to Pro"
+                className="gap-x-4 h-10 px-4"
+                onClick={() => authClient.checkout({
+                  slug: 'pro'
+                })}
+              >
+                <CrownIcon className="h-4 w-4" />
+                <span>Upgrade to Pro</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
+
 
           <SidebarMenuItem>
             <SidebarMenuButton
               tooltip="Billing Portal"
               className="gap-x-4 h-10 px-4"
-              onClick={() => { }}
+              onClick={() => authClient.customer.portal()}
             >
               <CreditCardIcon className="h-4 w-4" />
               <span>Billing Portal</span>
@@ -114,7 +125,7 @@ export const AppSidebar = () => {
               tooltip="Sign Out"
               className="gap-x-4 h-10 px-4"
               onClick={() => authClient.signOut({
-                fetchOptions:{
+                fetchOptions: {
                   onSuccess: () => {
                     router.push('/login')
                   }
