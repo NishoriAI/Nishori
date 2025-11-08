@@ -1,4 +1,5 @@
 import { auth } from '@/lib/auth';
+import { polarClient } from '@/lib/polar';
 import { initTRPC, TRPCError } from '@trpc/server';
 import { headers } from 'next/headers';
 import { cache } from 'react';
@@ -40,3 +41,4 @@ export const protectedProcedure = baseProcedure.use(async({ctx, next}) => {
     ctx: {...ctx, auth: session}
   })
 })
+
