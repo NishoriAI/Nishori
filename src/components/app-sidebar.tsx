@@ -10,9 +10,6 @@ import { useHasActiveSubscription } from "@/features/subscriptions/hooks/use-sub
 
 
 
-
-
-
 const menuItems = [
   {
     title: 'Workflows',
@@ -31,7 +28,8 @@ const menuItems = [
         title: 'Executions',
         icon: HistoryIcon,
         url: '/executions'
-      }
+      },
+
     ]
   }
 ]
