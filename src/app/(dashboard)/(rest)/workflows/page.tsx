@@ -25,8 +25,8 @@ const Page = async({ searchParams}: Props) => {
   return(
     <WorkflowsContainer>
     <HydrateClient>
-      <ErrorBoundary fallback={<WorkflowsError />}>
-        <Suspense fallback={<WorkflowsLoading />}>
+      <ErrorBoundary fallback={<p>Error</p>}>
+        <Suspense fallback={<p>Loading</p>}>
          <WorkflowsList />
         </Suspense>
       </ErrorBoundary>
