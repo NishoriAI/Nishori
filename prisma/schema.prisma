@@ -84,4 +84,58 @@ model Workflow {
 
   userId String
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  nodes Node[]
+  connections Connection[]
+}
+
+
+enum NodeType{
+  INITIAL
+}
+
+
+model Node{
+  id String @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+
+  workflowId String
+  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  outputConnections Connection[] @relation("FromNode")
+  inputConnections Connection[] @relation("ToNode")
+
+  name String
+  type NodeType
+  position Json
+  data Json @default("{}")
+
+}
+
+
+model Connection{
+  id String @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+
+  worflowId String
+  workflow Workflow @relation(fields: [worflowId], references: [id], onDelete: Cascade)
+
+
+
+  fromNodeId  String
+  fromNode Node @relation("FromNode", fields: [fromNodeId], references: [id], onDelete: Cascade)
+
+
+  toNodeId  String
+  toNode Node @relation("ToNode", fields: [toNodeId], references: [id], onDelete: Cascade)
+
+
+  fromOutput String @default("main")
+  toInput String @default("main")
+
+  @@unique([fromNodeId, toNodeId, fromOutput, toInput])
 }

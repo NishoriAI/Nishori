@@ -1,6 +1,8 @@
 import { PAGINATION } from "@/config/constants";
+import { NodeType } from "@/generated/prisma/enums";
 import prisma from "@/lib/db";
 import { createTRPCRouter, premiumProcedure, protectedProcedure } from "@/trpc/init";
+import { Node, Edge } from "@xyflow/react";
 import { generateSlug } from 'random-word-slugs'
 import z from "zod";
 
@@ -16,6 +18,13 @@ export const workflowsRouter = createTRPCRouter({
       data: {
         name: generateSlug(3),
         userId: ctx.auth.user.id,
+        nodes: {
+          create: {
+            type: NodeType.INITIAL,
+            position: {x: 0, y: 0},
+            name: NodeType.INITIAL
+          }
+        }
       }
     })
   }),
@@ -43,8 +52,8 @@ export const workflowsRouter = createTRPCRouter({
       id: z.string(),
       name: z.string().min(1)
     }))
-    .mutation(async({ ctx, input }) => {
-       return prisma.workflow.update({
+    .mutation(async ({ ctx, input }) => {
+      return prisma.workflow.update({
         where: {
           id: input.id,
           userId: ctx.auth.user.id
@@ -63,13 +72,42 @@ export const workflowsRouter = createTRPCRouter({
         id: z.string()
       })
     )
-    .query(({ ctx, input }) => {
-      return prisma.workflow.findUniqueOrThrow({
+    .query(async({ ctx, input }) => {
+      const workflow = await prisma.workflow.findUniqueOrThrow({
         where: {
           id: input.id,
           userId: ctx.auth.user.id
+        },
+        include:{
+          nodes: true,
+          connections: true
         }
       })
+
+      // This is I am transforming server nodes to react-flow ui nodes
+      const nodes: Node[] = workflow.nodes.map( (node) => ({
+        id: node.id,
+        type: node.type,
+        position: node.position as {x:number , y:number}, 
+        data: (node.data as Record<string, unknown>) || {}
+      }))
+
+      // This is how I am transforming connections to react-flow edges
+      const edges: Edge[] = workflow.connections.map((connection) => ({
+        id: connection.id,
+        source: connection.fromNodeId,
+        target: connection.toNodeId,
+        sourceHandle: connection.fromOutput,
+        targetHandle: connection.toInput
+      }))
+
+
+      return{
+        id: workflow.id,
+        name: workflow.name,
+        nodes,
+        edges,
+      }
     }),
 
 
@@ -96,26 +134,26 @@ export const workflowsRouter = createTRPCRouter({
 
           skip: (page - 1) * pageSize,
           take: pageSize,
-      
+
           where: {
             userId: ctx.auth.user.id,
-            name:{
+            name: {
               contains: search,
-              mode:'insensitive'
+              mode: 'insensitive'
             },
           },
 
-          orderBy:{
+          orderBy: {
             updatedAt: 'desc'
           },
 
         }),
 
         prisma.workflow.count({
-          where:{
+          where: {
             // id: ctx.auth.user.id
             userId: ctx.auth.user.id,
-            name:{
+            name: {
               contains: search,
               mode: 'insensitive'
             }
@@ -125,11 +163,11 @@ export const workflowsRouter = createTRPCRouter({
       ]);
 
 
-      const totalPages =  Math.ceil(totalCount/pageSize)
-      const hasNextPage =  page < totalPages;
-      const hasPreviousPage =  page > 1;
+      const totalPages = Math.ceil(totalCount / pageSize)
+      const hasNextPage = page < totalPages;
+      const hasPreviousPage = page > 1;
 
-      return{
+      return {
         items,
         page,
         pageSize,
