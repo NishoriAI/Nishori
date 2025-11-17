@@ -15,7 +15,8 @@ import {
   Controls,
   type ColorMode,
   MiniMap,
-  BackgroundVariant
+  BackgroundVariant,
+  Panel
 } from '@xyflow/react';
 
 import { ErrorView, LoadingView } from "@/components/entity-components"
@@ -23,6 +24,8 @@ import { useSuspenseWorkflow } from "@/features/workflows/hooks/use-workflows"
 import { useTheme } from "next-themes";
 
 import '@xyflow/react/dist/style.css';
+import { nodeComponents } from '@/config/node-config';
+import { AddNodeButton } from './add-node-button';
 
 // const initialNodes = [
 //   { id: 'n1', position: { x: 0, y: 0 }, data: { label: 'Node 1' } },
@@ -69,8 +72,6 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
   );
 
 
- 
-
 
 
   // Here I am getting the users theme choice and populating the canva window with that,
@@ -99,6 +100,7 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         fitView
+        nodeTypes={nodeComponents}
         proOptions={{
           hideAttribution: true
         }}
@@ -107,6 +109,9 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
         <Background variant={BackgroundVariant.Cross} />
         <Controls />
         <MiniMap />
+        <Panel position='top-right'>
+          <AddNodeButton />
+        </Panel>
       </ReactFlow>
     </div>
   );
