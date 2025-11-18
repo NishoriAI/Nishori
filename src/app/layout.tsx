@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
+import { Provider } from "jotai";
 import { TRPCReactProvider } from "@/trpc/client";
 import { Toaster } from "sonner";
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { ThemeProvider } from "@/components/theme-provider";
+import "./globals.css";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -22,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-      <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} antialiased`}>
         <ThemeProvider
           attribute="class"
@@ -31,11 +32,13 @@ export default function RootLayout({
         >
           <TRPCReactProvider>
             <NuqsAdapter>
-              {children}
+              <Provider>
+                {children}
+                <Toaster />
+              </Provider>
             </NuqsAdapter>
           </TRPCReactProvider>
 
-          <Toaster />
         </ThemeProvider>
       </body>
     </html>
