@@ -124,8 +124,8 @@ model Connection{
   updatedAt DateTime @updatedAt
 
 
-  worflowId String
-  workflow Workflow @relation(fields: [worflowId], references: [id], onDelete: Cascade)
+  workflowId String
+  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
 
 
 

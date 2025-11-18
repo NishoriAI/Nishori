@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useWorkflowsParams } from "./use-workflow-params";
 
 
-
+// Hook to get all the workflows in the workflows list page/component
 export const useSuspenseWorkflows = () => {
   const trpc = useTRPC();
 
@@ -14,7 +14,7 @@ export const useSuspenseWorkflows = () => {
   return useSuspenseQuery(trpc.workflows.getMany.queryOptions(params))
 }
 
-
+// Hook to createa a new empty workflow
 export const useCreateWorkflow = () => {
   const queryClient = useQueryClient();
 
@@ -36,7 +36,7 @@ export const useCreateWorkflow = () => {
     )
 }
 
-
+// Hook to remove a workflow 
 export const useRemoveWorkflow = () => {
   const trpc =  useTRPC();
   const queryClient  = useQueryClient();
@@ -51,15 +51,13 @@ export const useRemoveWorkflow = () => {
   )
 }
 
-
+// Hook to fetch one single workflow to populate the canvas and etc.
 export const useSuspenseWorkflow = (id: string) => {
   const trpc =  useTRPC()
   return useSuspenseQuery(trpc.workflows.getOne.queryOptions({id}))
 }
 
-
-
-
+// Hook to update workflow name on the breadcrumbs
 export const useUpdateWorkflowName = () => {
   const queryClient = useQueryClient();
 
@@ -78,6 +76,32 @@ export const useUpdateWorkflowName = () => {
     },
     onError: (error) => {
       toast.error(`Failed to update workflow: ${error.message}`)
+    } 
+
+})
+    )
+}
+
+
+// Hook to update the state of a workflow
+export const useUpdateWorkflow = () => {
+  const queryClient = useQueryClient();
+
+  const trpc = useTRPC();
+
+  return useMutation(
+    trpc.workflows.update.mutationOptions({
+      onSuccess: (data) => {
+        toast.success(`Workflow "${data.name}" saved`)
+        queryClient.invalidateQueries(
+          trpc.workflows.getMany.queryOptions({})
+        )
+        queryClient.invalidateQueries(
+          trpc.workflows.getOne.queryOptions({id: data.id})
+        )
+    },
+    onError: (error) => {
+      toast.error(`Failed to save workflow: ${error.message}`)
     } 
 
 })
